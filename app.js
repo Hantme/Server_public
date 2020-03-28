@@ -10,8 +10,8 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
-/*
-app.all("*", function(req, res, next) {
+
+/*app.all("*", function(req, res, next) {
   if (!req.get("Origin")) return next();
   // use "*" here to accept any origin
   res.set("Access-Control-Allow-Origin", "*");
@@ -20,8 +20,7 @@ app.all("*", function(req, res, next) {
   // res.set('Access-Control-Allow-Max-Age', 3600);
   if ("OPTIONS" === req.method) return res.send(200);
   next();
-});
-*/
+});*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

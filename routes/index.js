@@ -122,6 +122,25 @@ router.post('/login_sms', function (req, res, next) {
 /*
 根据sesion中的userid, 查询对应的user
  */
+
+router.get('/api/userinfo', function (req, res) {
+  // 取出userid
+  const userid = req.session.userid
+  // 查询
+  UserModel.findOne({_id: userid}, _filter, function (err, user) {
+    // 如果没有, 返回错误提示
+    if (!user) {
+      // 清除浏览器保存的userid的cookie
+      delete req.session.userid
+
+      res.send({code: 1, msg: '请先登陆'})
+    } else {
+      // 如果有, 返回user
+      res.send({code: 0, data: user})
+    }
+  })
+})
+
 router.get('/userinfo', function (req, res) {
   // 取出userid
   const userid = req.session.userid
@@ -151,6 +170,14 @@ router.get('/logout', function (req, res) {
 /*
 根据经纬度获取位置详情
  */
+router.get('/api/position/:geohash', function (req, res) {
+  const {geohash} = req.params
+  ajax(`http://cangdu.org:8001/v2/pois/${geohash}`)
+    .then(data => {
+      res.send({code: 0, data})
+    })
+})
+
 router.get('/position/:geohash', function (req, res) {
   const {geohash} = req.params
   ajax(`http://cangdu.org:8001/v2/pois/${geohash}`)
@@ -162,6 +189,12 @@ router.get('/position/:geohash', function (req, res) {
 /*
 获取首页分类列表
  */
+router.get('/api/index_category', function (req, res) {
+  setTimeout(function () {
+    const data = require('../data/index_category.json')
+    res.send({code: 0, data})
+  }, 300)
+})
 router.get('/index_category', function (req, res) {
   setTimeout(function () {
     const data = require('../data/index_category.json')
@@ -173,6 +206,15 @@ router.get('/index_category', function (req, res) {
 根据经纬度获取商铺列表
 ?latitude=40.10038&longitude=116.36867
  */
+router.get('/api/shops', function (req, res) {
+  const latitude = req.query.latitude
+  const longitude = req.query.longitude
+
+  setTimeout(function () {
+    const data = require('../data/shops.json')
+    res.send({code: 0, data})
+  }, 300)
+})
 router.get('/shops', function (req, res) {
   const latitude = req.query.latitude
   const longitude = req.query.longitude
@@ -183,6 +225,17 @@ router.get('/shops', function (req, res) {
   }, 300)
 })
 
+router.get('/api/search_shops', function (req, res) {
+  const {geohash, keyword} = req.query
+  ajax('http://cangdu.org:8001/v4/restaurants', {
+    'extras[]': 'restaurant_activity',
+    geohash,
+    keyword,
+    type: 'search'
+  }).then(data => {
+    res.send({code: 0, data})
+  })
+})
 router.get('/search_shops', function (req, res) {
   const {geohash, keyword} = req.query
   ajax('http://cangdu.org:8001/v4/restaurants', {
